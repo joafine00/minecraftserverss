@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Server Info</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0a0a0a, #050505);
+      color: #00ffcc;
+      font-family: 'Orbitron', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px #00ffff;
+      text-align: center;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #00ffcc;
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 30px #00ffee33;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      box-shadow: 0 0 50px #00ffee88;
+    }
+
+    input {
+      width: 80%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid #00ffcc;
+      background: transparent;
+      color: #00ffcc;
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input::placeholder {
+      color: #00ffee77;
+    }
+
+    button {
+      background: #00ffcc;
+      color: #000;
+      font-weight: bold;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00ffee;
+      box-shadow: 0 0 20px #00ffff;
+    }
+
+    #result {
+      margin-top: 20px;
+      text-align: left;
+      color: #aaffff;
+    }
+
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #00ffcc;
+      color: #00ffcc;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00ffee44;
+      max-width: 300px;
+      font-size: 0.9rem;
+      display: none;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    .popup a {
+      color: #00ffff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .popup a:hover {
+      text-decoration: underline;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #00ffff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      position: absolute;
+      top: 5px;
+      right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Minecraft Server Details</h1>
+
+  <div class="card">
+    <input type="text" id="serverIP" placeholder="Enter Minecraft server IP (e.g. play.hypixel.net)">
+    <br>
+    <button onclick="getServerInfo()">Check Server</button>
+
+    <div id="result"></div>
+  </div>
+
+  <!-- Popups -->
+  <div id="popup1" class="popup">
+    <button class="close-btn" onclick="closePopup('popup1')">✖</button>
+    <p>💬 Join our Discord Community:<br>
+    <a href="https://dsc.gg/ispasyu" target="_blank">https://dsc.gg/ispasyu</a></p>
+  </div>
+
+  <div id="popup2" class="popup" style="bottom: 150px;">
+    <button class="close-btn" onclick="closePopup('popup2')">✖</button>
+    <p>⚡ The Best Hosting for Bots, Websites, and Minecraft Servers:<br>
+    <a href="https://www.ovhcloud.com/" target="_blank">OVHCloud</a></p>
+  </div>
+
+  <script>
+    async function getServerInfo() {
+      const ip = document.getElementById('serverIP').value.trim();
+      const result = document.getElementById('result');
+      if (!ip) {
+        result.innerHTML = '<p style="color:red;">Please enter a server IP!</p>';
+        return;
+      }
+
+      result.innerHTML = '<p>Loading server info...</p>';
+
+      try {
+        const res = await fetch(`https://api.mcsrvstat.us/3/${ip}`);
+        const data = await res.json();
+
+        if (!data.online) {
+          result.innerHTML = `<p style="color:red;">Server is offline or unreachable!</p>`;
+          return;
+        }
+
+        result.innerHTML = `
+          <h3>🌐 Server: ${ip}</h3>
+          <p><strong>Version:</strong> ${data.version || 'Unknown'}</p>
+          <p><strong>Players:</strong> ${data.players?.online || 0} / ${data.players?.max || 0}</p>
+          <p><strong>MOTD:</strong><br>${(data.motd?.clean || ['N/A']).join('<br>')}</p>
+        `;
+      } catch (err) {
+        result.innerHTML = `<p style="color:red;">Error fetching data.</p>`;
+      }
+    }
+
+    function closePopup(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    // Show popups after a delay
+    setTimeout(() => document.getElementById('popup1').style.display = 'block', 3000);
+    setTimeout(() => document.getElementById('popup2').style.display = 'block', 8000);
+  </script>
+</body>
+</html>
